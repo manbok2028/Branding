@@ -129,7 +129,9 @@ def generate_naming(brief: dict) -> list:
     # f"""...""" 안의 중괄호에는 brief.json의 실제 내용이 들어갑니다.
     prompt = f"""
 다음 브랜드 브리프를 참고해 브랜드명 후보 3~5개를 제안해줘.
+브리프에 기존 브랜드명이 있으면 첫 번째 후보로 유지하고, 그 의미와 서비스 연관성을 설명해줘.
 
+기존 브랜드명: {brief.get('brand_name', '미정')}
 업종: {brief['industry']}
 타겟: {brief['target']}
 키워드: {', '.join(brief['keywords'])}
@@ -147,6 +149,7 @@ def generate_slogan(brief: dict) -> list:
     prompt = f"""
 다음 브랜드 브리프를 참고해 슬로건 3개를 제안해줘.
 
+브랜드명: {brief.get('brand_name', '미정')}
 업종: {brief['industry']}
 타겟: {brief['target']}
 키워드: {', '.join(brief['keywords'])}
@@ -171,7 +174,7 @@ def generate_story(brief: dict, brand_name: str) -> str:
     target = brief.get("target_audience", brief.get("target", ""))
     core_values = brief.get("core_values", brief.get("keywords", []))
     values = ", ".join(core_values)
-    tone = brief.get("tone", "다정하고 편안한 톤")
+    tone = brief.get("tone", "브랜드 목적에 맞는 신뢰감 있는 톤")
     description = brief.get("description", "")
 
     print("[브랜드 스토리 생성 시작]")
@@ -180,8 +183,8 @@ def generate_story(brief: dict, brand_name: str) -> str:
     print("-" * 40)
 
     prompt = f"""
-당신은 푸드테크 브랜드 전문 카피라이터입니다.
-아래 브랜드 정보를 바탕으로 감성적인 브랜드 스토리를 작성해주세요.
+당신은 다양한 산업의 브랜드 전략과 카피라이팅에 능숙한 전문 작가입니다.
+아래 브랜드 정보를 바탕으로 신뢰감 있고 공감할 수 있는 브랜드 스토리를 작성해주세요.
 
 브랜드명: {brand_name}
 카테고리: {category}
@@ -195,6 +198,7 @@ def generate_story(brief: dict, brand_name: str) -> str:
 - 브랜드의 탄생 배경과 철학을 담을 것
 - 타겟 고객의 공감을 이끌어낼 것
 - {tone} 톤으로 작성할 것
+- 서비스가 제공하지 않는 전문 자문이나 결과를 보장하는 표현은 쓰지 말 것
 """
 
     # system은 AI의 역할, user는 AI에게 부탁할 내용을 뜻합니다.
@@ -254,8 +258,8 @@ def generate_colors(
 [요구사항]
 1. 메인 컬러 1개, 서브 컬러 2~3개를 추천해줘.
 2. 각 컬러는 이름(name)과 HEX 코드(hex)를 포함해줘.
-3. 편안하고 다정하며 부담 없는 분위기를 반영해줘.
-4. 음식, 생활편의, 안심, 자취 감성을 고려해줘.
+3. 브리프의 업종, 핵심 가치, 톤앤매너를 색상에 구체적으로 반영해줘.
+4. 서비스의 신뢰성, 명료함, 접근성을 고려하고 불안이나 위기감을 과도하게 자극하는 색은 피해야 해.
 5. 반드시 아래 JSON 형식으로만 출력해줘.
 
 {{
@@ -338,8 +342,8 @@ def build_logo_prompt(brief: dict, colors: dict, brand_name: str) -> str:
     sub_colors = ", ".join(color["hex"] for color in colors["sub"])
     keywords = ", ".join(brief.get("keywords", []))
     return f"""
-Create a clean, friendly, modern logo concept for a Korean food-tech lifestyle
-web service named "{brand_name}".
+Create a clear, trustworthy, modern logo concept for a Korean web service named
+"{brand_name}".
 
 Brand context:
 - Industry: {brief.get('industry', '')}
@@ -349,10 +353,10 @@ Brand context:
 - Brand description: {brief.get('description', brief.get('notes', ''))}
 
 Design direction:
-- Feel warm, reassuring, easygoing, and approachable.
-- Avoid a cold, overly technical, or corporate style.
-- Communicate "You can make a meal with what you already have."
-- Emphasize comfort, simplicity, trust, and everyday usefulness.
+- Translate the supplied brand brief into a calm, reassuring, and approachable identity.
+- Emphasize clarity, trust, guidance, and a constructive next step.
+- Avoid imagery that guarantees debt cancellation, legal outcomes, or tax relief.
+- Avoid intimidating government emblems, alarmist warning symbols, and an overly corporate style.
 - Use {main_color} as the dominant color.
 - Supporting colors may include {sub_colors}.
 - Use a minimal, soft, modern style suitable for a web/app service.
@@ -376,9 +380,9 @@ def generate_logos(
     base_prompt = build_logo_prompt(brief, colors, brand_name)
     # 같은 브랜드라도 강조점을 달리해 여러 시안을 만듭니다.
     variations = [
-        "Focus more on warmth, home comfort, and friendly simplicity.",
-        "Focus more on food ingredients, fridge usage, and practical convenience.",
-        "Focus more on clean app-service branding and minimal icon style.",
+        "Focus on a reset-to-next-step concept using restrained, abstract directional forms.",
+        "Focus on trustworthy guidance, organized information, and calm forward movement.",
+        "Focus on clean web-service branding and a minimal, accessible icon style.",
     ]
 
     # num_images가 2라면 아래 작업을 두 번 반복합니다.
@@ -414,10 +418,10 @@ def build_brand_identity(brief: dict[str, Any], output_dir: Path) -> dict[str, A
 
     print("[1/5] 브랜드 네이밍 생성 중...")
     names = generate_naming(brief)
-    # 첫 번째 이름 후보를 앞으로 사용할 대표 브랜드명으로 고릅니다.
-    # 후보가 없을 때만 임시 이름인 '푸드테크'를 사용합니다.
-    brand_name = "푸드테크"
-    if names:
+    # brief.json에 확정 브랜드명이 있으면 이를 우선 사용합니다.
+    # 확정 이름이 없을 때만 첫 번째 AI 후보 또는 일반적인 임시 이름을 사용합니다.
+    brand_name = str(brief.get("brand_name", "브랜드"))
+    if not brief.get("brand_name") and names:
         first_name = names[0]
         brand_name = first_name.get("name", brand_name) if isinstance(first_name, dict) else str(first_name)
 
