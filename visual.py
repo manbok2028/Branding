@@ -208,7 +208,7 @@ def build_logo_prompt(brief: dict, colors: dict, brand_name: str = "푸트테크
     keywords = ", ".join(brief.get("keywords", []))
 
     prompt = f"""
-Create a clean, friendly, modern logo concept for a Korean food-tech lifestyle web service named "{brand_name}".
+Create a clean, trustworthy, modern logo concept for a Korean service named "{brand_name}".
 
 Brand context:
 - Industry: {brief.get("industry", "")}
@@ -218,20 +218,30 @@ Brand context:
 - Brand description: {brief.get("description", brief.get("notes", ""))}
 
 Design direction:
-- The brand should feel warm, reassuring, easygoing, and approachable.
-- Avoid a cold, overly technical, or corporate style.
-- Communicate the feeling of "You can make a meal with what you already have."
-- The service helps people use ingredients already in the fridge and reduce shopping stress.
-- Emphasize comfort, simplicity, trust, and everyday usefulness.
+- Follow the supplied industry, target, keywords, tone, and description precisely.
+- Make the brand feel reassuring, transparent, clear, and approachable.
+- Communicate organized guidance and an actionable next step without promising a guaranteed outcome.
+- Avoid a cold, intimidating, bureaucratic, or overly corporate style.
+- Emphasize clarity, trust, calm progress, and practical usefulness.
+- Create an ownable symbol with a clear idea, not a generic stock icon.
+- Use bold, balanced geometry and intentional negative space so the mark remains legible at app-icon size.
 
 Visual hints:
 - Use the main color {main_color} as the dominant color.
 - Supporting colors may include: {sub_colors}.
-- Consider simple motifs related to food, ingredients, kitchen, home, fridge, or one-meal comfort.
+- Derive a distinctive motif from the supplied brand context instead of using unrelated stock imagery.
 - Prefer a minimal, soft, modern logo.
 - Make it suitable for a web/app service.
-- Include the Korean brand name "{brand_name}" in a readable way if possible.
-- White or very light background preferred.
+- Include the exact Korean brand name "{brand_name}" in a clearly readable way.
+- Use crisp flat vector-style shapes on a white or very light background.
+- Keep strong contrast between the symbol, wordmark, and background.
+- Use at most one small accent-color detail.
+
+Strictly avoid:
+- gradients, glow, shadows, bevels, embossing, 3D effects, dark vignettes, and photographic textures
+- overly thin or fragile strokes
+- generic clip-art symbols and decorative visual clutter
+- mockup scenes, extra text, and watermarks
 
 Output:
 - Generate a polished logo concept image.
@@ -261,9 +271,9 @@ def generate_logos(
     base_prompt = build_logo_prompt(brief, colors, brand_name=brand_name)
 
     variation_instructions = [
-        "Variation 1: focus more on warmth, home comfort, and friendly simplicity.",
-        "Variation 2: focus more on food ingredients, fridge usage, and practical convenience.",
-        "Variation 3: focus more on clean app-service branding and minimal icon style.",
+        "Variation 1: create a distinctive monogram-style symbol with a continuous visual flow and premium simplicity.",
+        "Variation 2: create a bold emblem-style symbol with optical symmetry, protective shapes, and one restrained accent detail.",
+        "Variation 3: create a clean app-service identity with a compact, memorable icon and confident silhouette.",
     ]
 
     for i in range(num_images):
